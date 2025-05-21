@@ -1,0 +1,46 @@
+if ! getent passwd fiber-app-template >/dev/null; then
+    adduser --system --group --force-badname --quiet \
+        --home /run/fiber-app-template \
+        --shell /bin/bash \
+        fiber-app-template
+fi
+
+if ! [ -d "/run/fiber-app-template" ]; then
+    mkdir -p "/run/fiber-app-template"
+    chown fiber-app-template:fiber-app-template "/run/fiber-app-template"
+fi
+if ! [ -f "/opt/fiber-app-template/keys/fiber-app-template.key" ]; then
+    mkdir -p '/opt/fiber-app-template/keys/'
+    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/fiber-app-template/keys/fiber-app-template.key -nodes -out /opt/fiber-app-template/keys/fiber-app-template.pem -sha256 -days 358000
+fi
+        
+chmod -R 770 /opt/fiber-app-template
+chown -R fiber-app-template:fiber-app-template /opt/fiber-app-template
+
+if [ -f "/usr/lib/systemd/system/fiber-app-template.service" ]; then
+    rm -rf /usr/lib/systemd/system/fiber-app-template.service  2>/dev/null || true
+    systemctl disable fiber-app-template.service 2>/dev/null || true
+    systemctl stop fiber-app-template.service 2>/dev/null || true
+    systemctl daemon-reload 2>/dev/null || true
+fi
+
+echo """
+[Unit]
+Description=Fiber App Template (%I)
+[Service]
+Type=simple
+WorkingDirectory=/opt/fiber-app-template
+ExecStart=/opt/fiber-app-template/app -type=%i
+Restart=always
+RestartSec=10
+SyslogIdentifier=fiber-app-template
+KillSignal=SIGINT
+User=root
+Group=root
+[Install]
+WantedBy=multi-user.target
+    """ > /etc/systemd/system/fiber-app-template@.service
+
+systemctl daemon-reload
+systemctl enable fiber-app-template@admin.service fiber-app-template@client.service
+systemctl restart fiber-app-template@admin.service fiber-app-template@client.service

@@ -1,0 +1,85 @@
+name: Fiber App Template Deployment Yaml
+on:
+  push:
+    branches-ignore:
+      - 'releases/*'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sync]
+
+jobs:
+  naming: 
+    runs-on: ubuntu-24.04
+    steps:
+    - id: naming
+      run: |
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export PRERELEASE=false || export PRERELEASE=true
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export NAME="Release ${{ github.run_number }}" || export NAME="${GITHUB_REF#refs/heads/} release ${{ github.run_number }}"
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export TAG_NAME="release.${{ github.run_number }}" || export TAG_NAME="${GITHUB_REF#refs/heads/}.release.${{ github.run_number }}"
+        echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+        echo "name=${NAME}" >> $GITHUB_OUTPUT
+        echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+    outputs:
+      prerelease: ${{ steps.naming.outputs.prerelease }}
+      name: ${{ steps.naming.outputs.name }}
+      tag_name: ${{ steps.naming.outputs.tag_name }}
+  build:
+    needs: naming
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@master
+    - name: Getting Go Binaries
+      uses: actions/setup-go@v2
+      with:
+          go-version: '1.19'
+    - name: Build
+      run: |
+          go get -u && go mod tidy
+          CGO_ENABLED=1 go build -o fiber-app-template cmd/server/main.go
+    - name: Make DEB & RPM Packages
+      run: |
+        sudo apt install rpm -y
+        TMP_DIR=/tmp/fiber-app-template-build
+        DEBIAN_PATH=$TMP_DIR/DEBIAN
+        SERVER_BIN_PATH=$TMP_DIR/opt/fiber-app-template
+        rm -rf $TMP_DIR
+        
+        mkdir -p $TMP_DIR
+        mkdir -p $DEBIAN_PATH
+        mkdir -p $SERVER_BIN_PATH
+        
+        # For DEB package
+        cp ./scripts/debian/control $DEBIAN_PATH/control
+        cp ./scripts/debian/postinst $DEBIAN_PATH/postinst
+        cp fiber-app-template $SERVER_BIN_PATH/app
+        cp .env.example $SERVER_BIN_PATH/.env.example
+    
+        sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
+        chmod 775 $DEBIAN_PATH/postinst
+    
+        dpkg-deb --build $TMP_DIR
+        mv /tmp/fiber-app-template-build.deb /tmp/fiber-app-template-${{ github.run_number }}-x64.deb
+        
+        # For RPM package - prepare directories for rpmbuild
+        mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,BUILDROOT}
+        cp -r $SERVER_BIN_PATH ~/rpmbuild/SOURCES/fiber-app-template
+        
+        # Modify spec file 
+        sed -i s/%VERSION%/${{ github.run_number }}/g scripts/redhat/app.spec
+        cp scripts/redhat/app.spec ~/rpmbuild/SPECS/
+        
+        # Build RPM
+        rpmbuild -ba ~/rpmbuild/SPECS/app.spec
+        cp ~/rpmbuild/RPMS/x86_64/fiber-app-template-${{ github.run_number }}-0.x86_64.rpm /tmp/fiber-app-template-${{ github.run_number }}-x64.rpm
+    - name: Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+          files: |
+            /tmp/fiber-app-template-${{ github.run_number }}-x64.deb
+            /tmp/fiber-app-template-${{ github.run_number }}-x64.rpm
+          name: "${{ needs.naming.outputs.name }}"
+          tag_name: "${{ needs.naming.outputs.tag_name }}"
+          prerelease: ${{ needs.naming.outputs.prerelease }}
