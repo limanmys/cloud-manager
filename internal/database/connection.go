@@ -1,8 +1,6 @@
 package database
 
 import (
-	"log"
-	"os"
 	"sync"
 
 	"gorm.io/gorm"
@@ -20,7 +18,7 @@ func Connection() *gorm.DB {
 }
 
 func initialize() *gorm.DB {
-	switch os.Getenv("DB_DRIVER") {
+	/*switch os.Getenv("DB_DRIVER") {
 	case "postgres":
 		return initializePostgres()
 	case "mysql":
@@ -30,5 +28,7 @@ func initialize() *gorm.DB {
 	default:
 		log.Fatalln("You must specify a database driver. Choices are 'postgres' / 'mysql' / 'sqlite'")
 		return nil
-	}
+	}*/
+
+	return initializePostgres()
 }

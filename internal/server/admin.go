@@ -34,7 +34,7 @@ func RunAdmin(test_run bool) {
 	routes.Admin(app)
 
 	if test_run {
-		log.Fatal(app.Listen("0.0.0.0:7878"))
+		log.Fatal(app.Listen("0.0.0.0:8210"))
 	} else {
 		listener, err := Listener()
 		if err != nil {
