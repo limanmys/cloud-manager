@@ -1,4 +1,4 @@
-module github.com/limanmys/fiber-app-template
+module github.com/limanmys/cloud-manager
 
 go 1.19
 

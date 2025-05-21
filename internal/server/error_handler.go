@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/limanmys/fiber-app-template/internal/validation"
+	"github.com/limanmys/cloud-manager/internal/validation"
 )
 
 var ErrorHandler = func(c *fiber.Ctx, err error) error {

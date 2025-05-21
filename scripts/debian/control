@@ -1,4 +1,4 @@
-Package: fiber-app-template
+Package: cloud-manager
 Version: %VERSION%
 Section: utils
 Architecture: amd64

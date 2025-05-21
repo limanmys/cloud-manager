@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/limanmys/fiber-app-template/app/routes"
-	_ "github.com/limanmys/fiber-app-template/internal/migrations"
+	"github.com/limanmys/cloud-manager/app/routes"
+	_ "github.com/limanmys/cloud-manager/internal/migrations"
 )
 
 var adminConfig = fiber.Config{

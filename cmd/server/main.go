@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/limanmys/fiber-app-template/internal/server"
+	"github.com/limanmys/cloud-manager/internal/server"
 )
 
 func main() {

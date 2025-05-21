@@ -1,26 +1,26 @@
-if ! getent passwd fiber-app-template >/dev/null; then
+if ! getent passwd cloud-manager >/dev/null; then
     adduser --system --group --force-badname --quiet \
-        --home /run/fiber-app-template \
+        --home /run/cloud-manager \
         --shell /bin/bash \
-        fiber-app-template
+        cloud-manager
 fi
 
-if ! [ -d "/run/fiber-app-template" ]; then
-    mkdir -p "/run/fiber-app-template"
-    chown fiber-app-template:fiber-app-template "/run/fiber-app-template"
+if ! [ -d "/run/cloud-manager" ]; then
+    mkdir -p "/run/cloud-manager"
+    chown cloud-manager:cloud-manager "/run/cloud-manager"
 fi
-if ! [ -f "/opt/fiber-app-template/keys/fiber-app-template.key" ]; then
-    mkdir -p '/opt/fiber-app-template/keys/'
-    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/fiber-app-template/keys/fiber-app-template.key -nodes -out /opt/fiber-app-template/keys/fiber-app-template.pem -sha256 -days 358000
+if ! [ -f "/opt/cloud-manager/keys/cloud-manager.key" ]; then
+    mkdir -p '/opt/cloud-manager/keys/'
+    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/cloud-manager/keys/cloud-manager.key -nodes -out /opt/cloud-manager/keys/cloud-manager.pem -sha256 -days 358000
 fi
         
-chmod -R 770 /opt/fiber-app-template
-chown -R fiber-app-template:fiber-app-template /opt/fiber-app-template
+chmod -R 770 /opt/cloud-manager
+chown -R cloud-manager:cloud-manager /opt/cloud-manager
 
-if [ -f "/usr/lib/systemd/system/fiber-app-template.service" ]; then
-    rm -rf /usr/lib/systemd/system/fiber-app-template.service  2>/dev/null || true
-    systemctl disable fiber-app-template.service 2>/dev/null || true
-    systemctl stop fiber-app-template.service 2>/dev/null || true
+if [ -f "/usr/lib/systemd/system/cloud-manager.service" ]; then
+    rm -rf /usr/lib/systemd/system/cloud-manager.service  2>/dev/null || true
+    systemctl disable cloud-manager.service 2>/dev/null || true
+    systemctl stop cloud-manager.service 2>/dev/null || true
     systemctl daemon-reload 2>/dev/null || true
 fi
 
@@ -29,18 +29,18 @@ echo """
 Description=Fiber App Template (%I)
 [Service]
 Type=simple
-WorkingDirectory=/opt/fiber-app-template
-ExecStart=/opt/fiber-app-template/app -type=%i
+WorkingDirectory=/opt/cloud-manager
+ExecStart=/opt/cloud-manager/app -type=%i
 Restart=always
 RestartSec=10
-SyslogIdentifier=fiber-app-template
+SyslogIdentifier=cloud-manager
 KillSignal=SIGINT
 User=root
 Group=root
 [Install]
 WantedBy=multi-user.target
-    """ > /etc/systemd/system/fiber-app-template@.service
+    """ > /etc/systemd/system/cloud-manager@.service
 
 systemctl daemon-reload
-systemctl enable fiber-app-template@admin.service fiber-app-template@client.service
-systemctl restart fiber-app-template@admin.service fiber-app-template@client.service
+systemctl enable cloud-manager@admin.service cloud-manager@client.service
+systemctl restart cloud-manager@admin.service cloud-manager@client.service

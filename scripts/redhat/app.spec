@@ -1,4 +1,4 @@
-Name: fiber-app-template
+Name: cloud-manager
 Version: %VERSION%
 Release: 0
 License: MIT
@@ -18,35 +18,35 @@ example go-fiber application template for aciklab apps
 %build
 
 %install
-mkdir -p %{buildroot}/opt/fiber-app-template
-cp -rfa %{_sourcedir}/fiber-app-template/* %{buildroot}/opt/fiber-app-template/
-cp -a %{_sourcedir}/fiber-app-template/.env.example %{buildroot}/opt/fiber-app-template/
+mkdir -p %{buildroot}/opt/cloud-manager
+cp -rfa %{_sourcedir}/cloud-manager/* %{buildroot}/opt/cloud-manager/
+cp -a %{_sourcedir}/cloud-manager/.env.example %{buildroot}/opt/cloud-manager/
 
 
 %post -p /bin/bash
-if ! getent passwd fiber-app-template >/dev/null; then
+if ! getent passwd cloud-manager >/dev/null; then
     adduser --system --user-group \
-        --home-dir /run/fiber-app-template \
+        --home-dir /run/cloud-manager \
         --shell /bin/bash \
-        fiber-app-template
+        cloud-manager
 fi
 
-if ! [ -d "/run/fiber-app-template" ]; then
-    mkdir -p "/run/fiber-app-template"
-    chown fiber-app-template:fiber-app-template "/run/fiber-app-template"
+if ! [ -d "/run/cloud-manager" ]; then
+    mkdir -p "/run/cloud-manager"
+    chown cloud-manager:cloud-manager "/run/cloud-manager"
 fi
-if ! [ -f "/opt/fiber-app-template/keys/fiber-app-template.key" ]; then
-    mkdir -p '/opt/fiber-app-template/keys/'
-    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -extensions SAN -reqexts SAN -config <(cat $(echo "$(openssl version -d | sed 's/.*"\(.*\)"/\1/g')/openssl.cnf") <(printf "\n[SAN]\nsubjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)")) -keyout /opt/fiber-app-template/keys/fiber-app-template.key -nodes -out /opt/fiber-app-template/keys/fiber-app-template.pem -sha256 -days 358000
+if ! [ -f "/opt/cloud-manager/keys/cloud-manager.key" ]; then
+    mkdir -p '/opt/cloud-manager/keys/'
+    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -extensions SAN -reqexts SAN -config <(cat $(echo "$(openssl version -d | sed 's/.*"\(.*\)"/\1/g')/openssl.cnf") <(printf "\n[SAN]\nsubjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)")) -keyout /opt/cloud-manager/keys/cloud-manager.key -nodes -out /opt/cloud-manager/keys/cloud-manager.pem -sha256 -days 358000
 fi
 
-chown -R fiber-app-template:fiber-app-template /opt/fiber-app-template
-chmod -R 770 /opt/fiber-app-template
-if [ -f "/usr/lib/systemd/system/fiber-app-template.service" ]; then
-    rm -rf /usr/lib/systemd/system/fiber-app-template.service
-    systemctl disable fiber-app-template.service
-    systemctl stop fiber-app-template.service
-    systemctl daemon-reload fiber-app-template.service
+chown -R cloud-manager:cloud-manager /opt/cloud-manager
+chmod -R 770 /opt/cloud-manager
+if [ -f "/usr/lib/systemd/system/cloud-manager.service" ]; then
+    rm -rf /usr/lib/systemd/system/cloud-manager.service
+    systemctl disable cloud-manager.service
+    systemctl stop cloud-manager.service
+    systemctl daemon-reload cloud-manager.service
 fi
 
 echo """
@@ -55,18 +55,18 @@ Description=Fiber App Template %I
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/fiber-app-template
-ExecStart=/opt/fiber-app-template/app -type=%i
+WorkingDirectory=/opt/cloud-manager
+ExecStart=/opt/cloud-manager/app -type=%i
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
-SyslogIdentifier=fiber-app-template
+SyslogIdentifier=cloud-manager
 User=root
 Group=root
 
 [Install]
 WantedBy=multi-user.target
-    """ > /etc/systemd/system/fiber-app-template@.service
+    """ > /etc/systemd/system/cloud-manager@.service
 
 systemctl daemon-reload
 
@@ -74,7 +74,7 @@ systemctl daemon-reload
 
 %files
 %defattr(0770, root, root)
-/opt/fiber-app-template/app
-/opt/fiber-app-template/.env.example
+/opt/cloud-manager/app
+/opt/cloud-manager/.env.example
 
 %define _unpackaged_files_terminate_build 0

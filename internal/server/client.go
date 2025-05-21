@@ -12,8 +12,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/limanmys/fiber-app-template/app/routes"
-	"github.com/limanmys/fiber-app-template/internal/check"
+	"github.com/limanmys/cloud-manager/app/routes"
+	"github.com/limanmys/cloud-manager/internal/check"
 )
 
 var clientConfig = fiber.Config{
@@ -39,7 +39,7 @@ func RunClient() {
 	go h.Start()
 	app.Get("/healthcheck", adaptor.HTTPHandler(handlers.NewJSONHandlerFunc(h, nil)))
 
-	log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%d", "0.0.0.0", 7878), "/opt/fiber-app-template/keys/fiber-app-template.pem", "/opt/fiber-app-template/keys/fiber-app-template.key"))
+	log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%d", "0.0.0.0", 7878), "/opt/cloud-manager/keys/cloud-manager.pem", "/opt/cloud-manager/keys/cloud-manager.key"))
 }
 
 func handler(f http.HandlerFunc) http.Handler {

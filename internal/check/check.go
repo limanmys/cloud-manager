@@ -20,7 +20,7 @@ func Health() *health.Health {
 
 	h.AddChecks([]*health.Config{
 		{
-			Name:     "fiber-app-template",
+			Name:     "cloud-manager",
 			Checker:  checker,
 			Interval: time.Duration(2) * time.Second,
 			Fatal:    true,
