@@ -1,8 +1,8 @@
 package migrations
 
 import (
-	"github.com/limanmys/fiber-app-template/app/entities"
-	"github.com/limanmys/fiber-app-template/internal/database"
+	"github.com/limanmys/cloud-manager/app/entities"
+	"github.com/limanmys/cloud-manager/internal/database"
 )
 
 func init() {

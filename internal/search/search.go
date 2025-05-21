@@ -3,7 +3,7 @@ package search
 import (
 	"strings"
 
-	"github.com/limanmys/fiber-app-template/internal/database"
+	"github.com/limanmys/cloud-manager/internal/database"
 	"gorm.io/gorm"
 )
 

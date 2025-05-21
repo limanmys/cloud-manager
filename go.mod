@@ -1,6 +1,6 @@
 module github.com/limanmys/cloud-manager
 
-go 1.19
+go 1.22
 
 require (
 	github.com/InVisionApp/go-health/v2 v2.1.3
