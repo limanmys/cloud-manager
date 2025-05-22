@@ -3,7 +3,7 @@ package search
 import (
 	"strings"
 
-	"github.com/limanmys/cloud-manager/internal/database"
+	"github.com/limanmys/cloud-manager-server/internal/database"
 	"gorm.io/gorm"
 )
 

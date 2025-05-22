@@ -12,8 +12,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/limanmys/cloud-manager/app/routes"
-	"github.com/limanmys/cloud-manager/internal/socket"
+	"github.com/limanmys/cloud-manager-server/app/routes"
+	"github.com/limanmys/cloud-manager-server/internal/socket"
 )
 
 var clientConfig = fiber.Config{
@@ -65,7 +65,7 @@ func RunClient() {
 		}
 
 	}()
-	log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%d", "0.0.0.0", 8211), "/opt/cloud-manager/keys/cloud-manager.pem", "/opt/cloud-manager/keys/cloud-manager.key"))
+	log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%d", "0.0.0.0", 8211), "/opt/cloud-manager-server/keys/cloud-manager-server.pem", "/opt/cloud-manager-server/keys/cloud-manager-server.key"))
 }
 
 func handler(f http.HandlerFunc) http.Handler {

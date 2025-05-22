@@ -1,4 +1,4 @@
-Package: cloud-manager
+Package: cloud-manager-server
 Version: %VERSION%
 Section: utils
 Architecture: amd64

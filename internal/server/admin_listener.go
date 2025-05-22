@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/limanmys/cloud-manager/internal/constants"
+	"github.com/limanmys/cloud-manager-server/internal/constants"
 	"golang.org/x/sys/unix"
 )
 
@@ -40,11 +40,11 @@ func Listener() (net.Listener, error) {
 	if err := os.Chmod(constants.SOCKET_PATH, 0760); err != nil {
 		return nil, err
 	}
-	user_t, err := user.Lookup("cloud-manager")
+	user_t, err := user.Lookup("cloud-manager-server")
 	if err == nil {
 		uid, _ = strconv.Atoi(user_t.Uid)
 	}
-	group_t, err := user.LookupGroup("cloud-manager")
+	group_t, err := user.LookupGroup("cloud-manager-server")
 	if err == nil {
 		gid, _ = strconv.Atoi(group_t.Gid)
 

@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/limanmys/cloud-manager/app/controllers/books"
+	"github.com/limanmys/cloud-manager-server/app/controllers/books"
 )
 
 func Admin(app *fiber.App) {

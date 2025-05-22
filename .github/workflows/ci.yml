@@ -35,13 +35,13 @@ jobs:
     - name: Build
       run: |
           go get -u && go mod tidy
-          CGO_ENABLED=0 go build -o cloud-manager cmd/server/main.go
+          CGO_ENABLED=0 go build -o cloud-manager-server cmd/server/main.go
     - name: Make DEB & RPM Packages
       run: |
         sudo apt install rpm -y
-        TMP_DIR=/tmp/cloud-manager-build
+        TMP_DIR=/tmp/cloud-manager-server-build
         DEBIAN_PATH=$TMP_DIR/DEBIAN
-        SERVER_BIN_PATH=$TMP_DIR/opt/cloud-manager
+        SERVER_BIN_PATH=$TMP_DIR/opt/cloud-manager-server
         rm -rf $TMP_DIR
         
         mkdir -p $TMP_DIR
@@ -51,18 +51,18 @@ jobs:
         # For DEB package
         cp ./scripts/debian/control $DEBIAN_PATH/control
         cp ./scripts/debian/postinst $DEBIAN_PATH/postinst
-        cp cloud-manager $SERVER_BIN_PATH/app
+        cp cloud-manager-server $SERVER_BIN_PATH/app
         cp .env.example $SERVER_BIN_PATH/.env.example
     
         sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
         chmod 775 $DEBIAN_PATH/postinst
     
         dpkg-deb --build $TMP_DIR
-        mv /tmp/cloud-manager-build.deb /tmp/cloud-manager-${{ github.run_number }}-x64.deb
+        mv /tmp/cloud-manager-server-build.deb /tmp/cloud-manager-server-${{ github.run_number }}-x64.deb
         
         # For RPM package - prepare directories for rpmbuild
         mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,BUILDROOT}
-        cp -r $SERVER_BIN_PATH ~/rpmbuild/SOURCES/cloud-manager
+        cp -r $SERVER_BIN_PATH ~/rpmbuild/SOURCES/cloud-manager-server
         
         # Modify spec file 
         sed -i s/%VERSION%/${{ github.run_number }}/g scripts/redhat/app.spec
@@ -70,7 +70,7 @@ jobs:
         
         # Build RPM
         rpmbuild -ba ~/rpmbuild/SPECS/app.spec
-        cp ~/rpmbuild/RPMS/x86_64/cloud-manager-${{ github.run_number }}-0.x86_64.rpm /tmp/cloud-manager-${{ github.run_number }}-x64.rpm
+        cp ~/rpmbuild/RPMS/x86_64/cloud-manager-server-${{ github.run_number }}-0.x86_64.rpm /tmp/cloud-manager-server-${{ github.run_number }}-x64.rpm
     - name: Release
       id: create_release
       uses: softprops/action-gh-release@v1
@@ -78,8 +78,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
           files: |
-            /tmp/cloud-manager-${{ github.run_number }}-x64.deb
-            /tmp/cloud-manager-${{ github.run_number }}-x64.rpm
+            /tmp/cloud-manager-server-${{ github.run_number }}-x64.deb
+            /tmp/cloud-manager-server-${{ github.run_number }}-x64.rpm
           name: "${{ needs.naming.outputs.name }}"
           tag_name: "${{ needs.naming.outputs.tag_name }}"
           prerelease: ${{ needs.naming.outputs.prerelease }}

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/limanmys/cloud-manager/internal/server"
+	"github.com/limanmys/cloud-manager-server/internal/server"
 )
 
 func main() {

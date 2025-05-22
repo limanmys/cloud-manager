@@ -4,11 +4,11 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/limanmys/cloud-manager/app/entities"
-	"github.com/limanmys/cloud-manager/internal/database"
-	"github.com/limanmys/cloud-manager/internal/paginator"
-	"github.com/limanmys/cloud-manager/internal/search"
-	"github.com/limanmys/cloud-manager/internal/validation"
+	"github.com/limanmys/cloud-manager-server/app/entities"
+	"github.com/limanmys/cloud-manager-server/internal/database"
+	"github.com/limanmys/cloud-manager-server/internal/paginator"
+	"github.com/limanmys/cloud-manager-server/internal/search"
+	"github.com/limanmys/cloud-manager-server/internal/validation"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm/clause"

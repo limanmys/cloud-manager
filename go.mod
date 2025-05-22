@@ -1,4 +1,4 @@
-module github.com/limanmys/cloud-manager
+module github.com/limanmys/cloud-manager-server
 
 go 1.22
 

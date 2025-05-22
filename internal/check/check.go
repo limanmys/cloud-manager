@@ -20,7 +20,7 @@ func Health() *health.Health {
 
 	h.AddChecks([]*health.Config{
 		{
-			Name:     "cloud-manager",
+			Name:     "cloud-manager-server",
 			Checker:  checker,
 			Interval: time.Duration(2) * time.Second,
 			Fatal:    true,
