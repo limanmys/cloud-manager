@@ -1,8 +1,11 @@
 package database
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +21,13 @@ func Connection() *gorm.DB {
 }
 
 func initialize() *gorm.DB {
+
+	e := godotenv.Load()
+	if e != nil {
+		fmt.Print(e)
+		os.Exit(1)
+	}
+
 	/*switch os.Getenv("DB_DRIVER") {
 	case "postgres":
 		return initializePostgres()

@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/limanmys/cloud-manager-server/app/migrations"
 	"github.com/limanmys/cloud-manager-server/app/routes"
 	_ "github.com/limanmys/cloud-manager-server/internal/migrations"
 )
@@ -29,7 +30,7 @@ func RunAdmin(test_run bool) {
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(compress.New())
 	app.Use(logger.New())
-
+	migrations.Init()
 	// Admin routes
 	routes.Admin(app)
 

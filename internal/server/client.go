@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/limanmys/cloud-manager-server/app/migrations"
 	"github.com/limanmys/cloud-manager-server/app/routes"
 	"github.com/limanmys/cloud-manager-server/internal/socket"
 )
@@ -30,7 +30,7 @@ func RunClient() {
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(compress.New())
 	app.Use(logger.New())
-
+	migrations.Init()
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
 			c.Locals("allowed", true)
@@ -53,18 +53,20 @@ func RunClient() {
 	go h.Start()
 	app.Get("/healthcheck", adaptor.HTTPHandler(handlers.NewJSONHandlerFunc(h, nil)))
 	*/
-	go func() {
-		for {
-			time.Sleep(2 * time.Second)
-			res, err := socket.Send("1111", "test", "data")
-			if err != nil {
-				fmt.Println("error:", err.Error())
-				continue
+	/*
+		go func() {
+			for {
+				time.Sleep(2 * time.Second)
+				res, err := socket.Send("1111", "test", "data")
+				if err != nil {
+					fmt.Println("error:", err.Error())
+					continue
+				}
+				fmt.Println("res", res)
 			}
-			fmt.Println("res", res)
-		}
 
-	}()
+		}()
+	*/
 	log.Fatal(app.ListenTLS(fmt.Sprintf("%s:%d", "0.0.0.0", 8211), "/opt/cloud-manager-server/keys/cloud-manager-server.pem", "/opt/cloud-manager-server/keys/cloud-manager-server.key"))
 }
 

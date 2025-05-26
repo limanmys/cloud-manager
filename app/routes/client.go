@@ -1,7 +1,17 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/limanmys/cloud-manager-server/app/controllers/machines"
+)
 
 func Client(app *fiber.App) {
 
+	machineGroup := app.Group("/machines")
+	{
+		machineGroup.Post("/", machines.Store)
+		machineGroup.Get("/:device", machines.Show)
+		machineGroup.Get("/:device/env", machines.GetEnv)
+		machineGroup.Get("/:device/notify_stop", machines.NotifyClientStop)
+	}
 }
