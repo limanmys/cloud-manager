@@ -22,7 +22,7 @@ if ! [ -f "/opt/cloud-manager-server/.env" ]; then
     sudo -u postgres psql -U postgres -d postgres -c "alter user \"cloud-manager\" with password '$RANDOM_PASSWORD';"
 
     cp /opt/cloud-manager-server/.env.example /opt/cloud-manager-server/.env
-    sed -i "/^DB_PASSWORD=/ {s,DB_PASSWORD=,DB_PASSWORD=$RANDOM_PASSWORD,}" /opt/cloud-manager-server/.env
+    sed -i "/^DB_PASS=/ {s,DB_PASS=,DB_PASS=$RANDOM_PASSWORD,}" /opt/cloud-manager-server/.env
 fi
 
 
