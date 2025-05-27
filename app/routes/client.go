@@ -2,10 +2,16 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/limanmys/cloud-manager-server/app/controllers/clients"
 	"github.com/limanmys/cloud-manager-server/app/controllers/machines"
 )
 
 func Client(app *fiber.App) {
+
+	app.Get("/clients", clients.Index)
+	app.Get("/client", clients.Show)
+	app.Post("/client", clients.Show)
+	app.Get("/device_id_version", clients.DeviceIdVersion)
 
 	machineGroup := app.Group("/machines")
 	{
