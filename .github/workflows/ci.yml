@@ -34,8 +34,8 @@ jobs:
         owner: "limanmys"
         repo: "cloud-manager-client"
         tag: "latest"
-        file: /^cloud-manager-client-x64.*$/
-        path: "clients"
+        file: /^cloud-manager-client-.*$/
+        path: "clients/"
         token: ${{ secrets.TOKEN }}
     - uses: actions/checkout@master
     - name: Getting Go Binaries
@@ -44,6 +44,7 @@ jobs:
           go-version: '1.22'
     - name: Build
       run: |
+          ls -l ./clients
           go get -u && go mod tidy
           CGO_ENABLED=0 go build -o cloud-manager-server cmd/server/main.go
     - name: Make DEB & RPM Packages

@@ -9,6 +9,23 @@ if ! [ -d "/run/cloud-manager-server" ]; then
     mkdir -p "/run/cloud-manager-server"
     chown cloud-manager-server:cloud-manager-server "/run/cloud-manager-server"
 fi
+
+systemctl enable postgresql
+systemctl start postgresql
+
+if sudo -u postgres createuser cloud-manager &>/dev/null; then
+    sudo -u postgres createdb cloud-manager -O cloud-manager
+fi
+
+if ! [ -f "/opt/cloud-manager-server/.env" ]; then
+    RANDOM_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 25 ; echo)
+    sudo -u postgres psql -U postgres -d postgres -c "alter user \"cloud-manager\" with password '$RANDOM_PASSWORD';"
+
+    cp /opt/cloud-manager-server/.env.example /opt/cloud-manager-server/.env
+    sed -i "/^DB_PASSWORD=/ {s,DB_PASSWORD=,DB_PASSWORD=$RANDOM_PASSWORD,}" /opt/cloud-manager-server/.env
+fi
+
+
 if ! [ -f "/opt/cloud-manager-server/keys/cloud-manager-server.key" ]; then
     mkdir -p '/opt/cloud-manager-server/keys/'
     openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/cloud-manager-server/keys/cloud-manager-server.key -nodes -out /opt/cloud-manager-server/keys/cloud-manager-server.pem -sha256 -days 358000
