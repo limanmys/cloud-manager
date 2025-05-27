@@ -34,7 +34,7 @@ jobs:
         owner: "limanmys"
         repo: "cloud-manager-client"
         tag: "latest"
-        file: /^cloud-manager-client-.*$/
+        file: /^cloud-manager-client-x64.*$/
         path: "clients"
         token: ${{ secrets.TOKEN }}
     - uses: actions/checkout@master
@@ -63,6 +63,7 @@ jobs:
         cp ./scripts/debian/postinst $DEBIAN_PATH/postinst
         cp cloud-manager-server $SERVER_BIN_PATH/cloud-manager-server
         cp .env.example $SERVER_BIN_PATH/.env.example
+        cp -r ./clients $SERVER_BIN_PATH
     
         sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
         chmod 775 $DEBIAN_PATH/postinst
