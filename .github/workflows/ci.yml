@@ -1,4 +1,4 @@
-name: Fiber App Template Deployment Yaml
+name: Cloud Manager Server Yaml
 on:
   push:
     branches-ignore:
@@ -27,6 +27,16 @@ jobs:
     needs: naming
     runs-on: ubuntu-22.04
     steps:
+
+    - name: Get latest release of cloud-manager-client setup
+      uses: i3h/download-release-asset@v1
+      with:
+        owner: "limanmys"
+        repo: "cloud-manager-client"
+        tag: "latest"
+        file: /^cloud-manager-client-client-.*$/
+        path: "clients"
+        token: ${{ secrets.TOKEN }}
     - uses: actions/checkout@master
     - name: Getting Go Binaries
       uses: actions/setup-go@v2
@@ -51,7 +61,7 @@ jobs:
         # For DEB package
         cp ./scripts/debian/control $DEBIAN_PATH/control
         cp ./scripts/debian/postinst $DEBIAN_PATH/postinst
-        cp cloud-manager-server $SERVER_BIN_PATH/app
+        cp cloud-manager-server $SERVER_BIN_PATH/cloud-manager-server
         cp .env.example $SERVER_BIN_PATH/.env.example
     
         sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
@@ -65,11 +75,11 @@ jobs:
         cp -r $SERVER_BIN_PATH ~/rpmbuild/SOURCES/cloud-manager-server
         
         # Modify spec file 
-        sed -i s/%VERSION%/${{ github.run_number }}/g scripts/redhat/app.spec
-        cp scripts/redhat/app.spec ~/rpmbuild/SPECS/
+        sed -i s/%VERSION%/${{ github.run_number }}/g scripts/redhat/cloud-manager-server.spec
+        cp scripts/redhat/cloud-manager-server.spec ~/rpmbuild/SPECS/
         
         # Build RPM
-        rpmbuild -ba ~/rpmbuild/SPECS/app.spec
+        rpmbuild -ba ~/rpmbuild/SPECS/cloud-manager-server.spec
         cp ~/rpmbuild/RPMS/x86_64/cloud-manager-server-${{ github.run_number }}-0.x86_64.rpm /tmp/cloud-manager-server-${{ github.run_number }}-x64.rpm
     - name: Release
       id: create_release

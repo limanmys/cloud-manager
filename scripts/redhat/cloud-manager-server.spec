@@ -4,12 +4,12 @@ Release: 0
 License: MIT
 Requires: openssl
 Prefix: /opt
-Summary: example go-fiber application template for aciklab apps
+Summary: Cloud Manager Server
 Group: Applications/System
 BuildArch: x86_64
 
 %description
-example go-fiber application template for aciklab apps
+Cloud Manager Server
 
 %pre
 
@@ -51,12 +51,12 @@ fi
 
 echo """
 [Unit]
-Description=Fiber App Template %I
+Description=Cloud Manager Server %I
 
 [Service]
 Type=simple
 WorkingDirectory=/opt/cloud-manager-server
-ExecStart=/opt/cloud-manager-server/app -type=%i
+ExecStart=/opt/cloud-manager-server/cloud-manager-server -type=%i
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
@@ -74,7 +74,7 @@ systemctl daemon-reload
 
 %files
 %defattr(0770, root, root)
-/opt/cloud-manager-server/app
+/opt/cloud-manager-server/cloud-manager-server
 /opt/cloud-manager-server/.env.example
 
 %define _unpackaged_files_terminate_build 0

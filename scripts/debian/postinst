@@ -26,11 +26,11 @@ fi
 
 echo """
 [Unit]
-Description=Fiber App Template (%I)
+Description=Cloud Manager server (%I)
 [Service]
 Type=simple
 WorkingDirectory=/opt/cloud-manager-server
-ExecStart=/opt/cloud-manager-server/app -type=%i
+ExecStart=/opt/cloud-manager-server/cloud-manager-server -type=%i
 Restart=always
 RestartSec=10
 SyslogIdentifier=cloud-manager-server
