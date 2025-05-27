@@ -24,6 +24,7 @@ func initializePostgres() *gorm.DB {
 	})
 
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil
 	}
 	return connection
