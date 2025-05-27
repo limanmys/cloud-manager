@@ -57,7 +57,7 @@ jobs:
         sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
         chmod 775 $DEBIAN_PATH/postinst
     
-        dpkg-deb --build $TMP_DIR
+        dpkg-deb -Zxz --build $TMP_DIR
         mv /tmp/cloud-manager-server-build.deb /tmp/cloud-manager-server-${{ github.run_number }}-x64.deb
         
         # For RPM package - prepare directories for rpmbuild
