@@ -32,6 +32,7 @@ func Store(c *fiber.Ctx) error {
 	machine.OsName = req.OsName
 	machine.OsVersion = req.OsVersion
 	machine.Env = req.Env
+	machine.CloudType = req.CloudType
 
 	if req.IpAddr != "" {
 		machine.IpAddr = req.IpAddr

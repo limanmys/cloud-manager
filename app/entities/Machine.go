@@ -28,6 +28,7 @@ type Machine struct {
 	IsApproved            bool   `json:"is_approved" gorm:"default:true"`
 	Online                bool   `json:"online" gorm:"default:false"`
 	TriggerToken          string `json:"trigger_token"`
+	CloudType             string `json:"cloud_type"`
 	//OperatorID            *uuid.UUID `json:"operator_id"`
 	//Operator              *Operator              `json:"operator"`
 	Env             gormjsonb.JSONB `json:"env" gorm:"type:jsonb"`
@@ -35,6 +36,7 @@ type Machine struct {
 	ApplicationType JSONB           `json:"application_type" gorm:"type:jsonb"`
 	Tags            JSONB           `json:"tags" gorm:"type:jsonb"`
 	Active          *bool           `json:"active" gorm:"default:true"`
+	Clouds          []Cloud         `json:"clouds" gorm:"many2many:cloud_machines"`
 }
 
 func GetLicensedMachineCount() int64 {

@@ -13,4 +13,8 @@ func Init() {
 		log.Fatalln("error when making migrations, ", err.Error())
 	}
 
+	if err := database.Connection().AutoMigrate(&entities.Cloud{}); err != nil {
+		log.Fatalln("error when making migrations, ", err.Error())
+	}
+
 }
