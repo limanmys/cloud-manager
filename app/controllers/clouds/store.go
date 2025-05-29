@@ -1,6 +1,8 @@
 package clouds
 
 import (
+	"slices"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/limanmys/cloud-manager-server/app/entities"
 	"github.com/limanmys/cloud-manager-server/internal/database"
@@ -35,14 +37,18 @@ func Store(c *fiber.Ctx) error {
 		}
 		hosts = str_list
 	}
-	if len(hosts) > 0 {
-		database.Connection().Model(&entities.Machine{}).Find(&machines, "hostname in (?) and cloud_type = ?", hosts, req.RegisterInfo["type"].(string))
-
-	}
 
 	err := database.Connection().Model(&machine_info).First(&machine_info, "device_id = ?", req.DeviceId).Error
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "machine not found:%s", err.Error())
+	}
+
+	if !slices.Contains(hosts, machine_info.Hostname) {
+		hosts = append(hosts, machine_info.Hostname)
+	}
+	if len(hosts) > 0 {
+		database.Connection().Model(&entities.Machine{}).Find(&machines, "hostname in (?) and cloud_type = ?", hosts, req.RegisterInfo["type"].(string))
+
 	}
 
 	if _, ok := req.RegisterInfo["type"].(string); !ok {
