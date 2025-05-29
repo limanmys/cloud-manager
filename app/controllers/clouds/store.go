@@ -1,8 +1,6 @@
 package clouds
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/limanmys/cloud-manager-server/app/entities"
 	"github.com/limanmys/cloud-manager-server/internal/database"
@@ -20,8 +18,7 @@ func Store(c *fiber.Ctx) error {
 	var machines []entities.Machine
 	var machine_info entities.Machine
 	var hosts []string
-	fmt.Println(string(c.Body()))
-	fmt.Println(req.RegisterInfo)
+
 	if err := c.BodyParser(&req); err != nil {
 		return err
 	}
@@ -38,6 +35,10 @@ func Store(c *fiber.Ctx) error {
 		}
 		hosts = str_list
 	}
+	if len(hosts) > 0 {
+		database.Connection().Model(&entities.Machine{}).Find(&machines, "hostname in (?) and cloud_type = ?", hosts, req.RegisterInfo["type"].(string))
+
+	}
 
 	err := database.Connection().Model(&machine_info).First(&machine_info, "device_id = ?", req.DeviceId).Error
 	if err != nil {
@@ -48,37 +49,33 @@ func Store(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotAcceptable, "invalid cloud type")
 	}
 
-	database.Connection().Model(&cloud).First(&cloud, "name = ?", cloud.Name)
+	cloud.Name = machine_info.Hostname
 
-	cloud.Type = req.RegisterInfo["type"].(string)
-	fmt.Println("hosts", hosts)
-	database.Connection().Model(&entities.Machine{}).Find(&machines, "hostname in (?) and cloud_type = ?", hosts, req.RegisterInfo["type"].(string))
+	res := database.Connection().Model(&cloud).First(&cloud, "name = ?", cloud.Name)
 
-	if cloud.Name == "" {
+	if res.RowsAffected == 0 {
+
 		for _, machine := range machines {
 			var items []map[string]string
 			database.Connection().Table("cloud_machines").Where("machine_id = ?", machine.ID).
 				Find(&items)
 
-			if len(items) > 1 {
-				return fiber.NewError(fiber.StatusNotFound, "cloud not found")
-			} else if len(items) == 0 {
-				cloud.Name = machine_info.Hostname
-			} else {
+			if len(items) > 0 {
 				var cloud_info entities.Cloud
 				database.Connection().Model(&cloud_info).First(&cloud_info, "id = ?", items[0]["cloud_id"])
 				cloud.Name = cloud_info.Name
-			}
 
+			}
 		}
+
 	}
 
+	cloud.Type = req.RegisterInfo["type"].(string)
 	if cloud.Name == "" {
 		return fiber.NewError(fiber.StatusNotFound, "cloud not found")
 	}
 
 	err = database.Connection().Clauses(clause.OnConflict{
-		//Columns:   []clause.Column{{Name: "name"}},
 		UpdateAll: true,
 	}).Create(&cloud).Error
 	if err != nil {
