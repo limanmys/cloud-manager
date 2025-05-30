@@ -1,64 +1,72 @@
-if ! getent passwd cloud-manager-server >/dev/null; then
-    adduser --system --group --force-badname --quiet \
-        --home /run/cloud-manager-server \
-        --shell /bin/bash \
-        cloud-manager-server
-fi
+#!/bin/bash
+set -e
+case "$1" in
+    configure)
 
-if ! [ -d "/run/cloud-manager-server" ]; then
-    mkdir -p "/run/cloud-manager-server"
-    chown cloud-manager-server:cloud-manager-server "/run/cloud-manager-server"
-fi
+        if ! getent passwd cloud-manager-server >/dev/null; then
+            adduser --system --group --force-badname --quiet \
+                --home /run/cloud-manager-server \
+                --shell /bin/bash \
+                cloud-manager-server
+        fi
 
-systemctl enable postgresql
-systemctl start postgresql
+        if ! [ -d "/run/cloud-manager-server" ]; then
+            mkdir -p "/run/cloud-manager-server"
+            chown cloud-manager-server:cloud-manager-server "/run/cloud-manager-server"
+        fi
 
-if sudo -u postgres createuser cloud-manager &>/dev/null; then
-    sleep 1
-    sudo -u postgres createdb cloud-manager -O cloud-manager
-fi
+        systemctl enable postgresql
+        systemctl start postgresql
 
-if ! [ -f "/opt/cloud-manager-server/.env" ]; then
-    RANDOM_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 25 ; echo)
-    sudo -u postgres psql -U postgres -d postgres -c "alter user \"cloud-manager\" with password '$RANDOM_PASSWORD';"
+        if sudo -u postgres createuser cloud-manager &>/dev/null; then
+            sleep 1
+            sudo -u postgres createdb cloud-manager -O cloud-manager
+        fi
 
-    cp /opt/cloud-manager-server/.env.example /opt/cloud-manager-server/.env
-    sed -i "/^DB_PASS=/ {s,DB_PASS=.*,DB_PASS=$RANDOM_PASSWORD,}" /opt/cloud-manager-server/.env
-fi
+        if ! [ -f "/opt/cloud-manager-server/.env" ]; then
+            RANDOM_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 25 ; echo)
+            sudo -u postgres psql -U postgres -d postgres -c "alter user \"cloud-manager\" with password '$RANDOM_PASSWORD';"
+
+            cp /opt/cloud-manager-server/.env.example /opt/cloud-manager-server/.env
+            sed -i "/^DB_PASS=/ {s,DB_PASS=.*,DB_PASS=$RANDOM_PASSWORD,}" /opt/cloud-manager-server/.env
+        fi
 
 
-if ! [ -f "/opt/cloud-manager-server/keys/cloud-manager-server.key" ]; then
-    mkdir -p '/opt/cloud-manager-server/keys/'
-    openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/cloud-manager-server/keys/cloud-manager-server.key -nodes -out /opt/cloud-manager-server/keys/cloud-manager-server.pem -sha256 -days 358000
-fi
-        
-chmod -R 770 /opt/cloud-manager-server
-chown -R cloud-manager-server:cloud-manager-server /opt/cloud-manager-server
+        if ! [ -f "/opt/cloud-manager-server/keys/cloud-manager-server.key" ]; then
+            mkdir -p '/opt/cloud-manager-server/keys/'
+            openssl req -x509 -newkey rsa:4096 -subj "/CN=$(hostname -I | cut -d" " -f1 | xargs)" -addext "subjectAltName=IP:$(hostname -I | cut -d" " -f1 | xargs),IP:127.0.0.1,DNS:$(hostname)" -keyout /opt/cloud-manager-server/keys/cloud-manager-server.key -nodes -out /opt/cloud-manager-server/keys/cloud-manager-server.pem -sha256 -days 358000
+        fi
+                
+        chmod -R 770 /opt/cloud-manager-server
+        chown -R cloud-manager-server:cloud-manager-server /opt/cloud-manager-server
 
-if [ -f "/usr/lib/systemd/system/cloud-manager-server.service" ]; then
-    rm -rf /usr/lib/systemd/system/cloud-manager-server.service  2>/dev/null || true
-    systemctl disable cloud-manager-server.service 2>/dev/null || true
-    systemctl stop cloud-manager-server.service 2>/dev/null || true
-    systemctl daemon-reload 2>/dev/null || true
-fi
+        if [ -f "/usr/lib/systemd/system/cloud-manager-server.service" ]; then
+            rm -rf /usr/lib/systemd/system/cloud-manager-server.service  2>/dev/null || true
+            systemctl disable cloud-manager-server.service 2>/dev/null || true
+            systemctl stop cloud-manager-server.service 2>/dev/null || true
+            systemctl daemon-reload 2>/dev/null || true
+        fi
 
-echo """
-[Unit]
-Description=Cloud Manager server (%I)
-[Service]
-Type=simple
-WorkingDirectory=/opt/cloud-manager-server
-ExecStart=/opt/cloud-manager-server/cloud-manager-server -type=%i
-Restart=always
-RestartSec=10
-SyslogIdentifier=cloud-manager-server
-KillSignal=SIGINT
-User=root
-Group=root
-[Install]
-WantedBy=multi-user.target
-    """ > /etc/systemd/system/cloud-manager-server@.service
+        echo """
+        [Unit]
+        Description=Cloud Manager server (%I)
+        [Service]
+        Type=simple
+        WorkingDirectory=/opt/cloud-manager-server
+        ExecStart=/opt/cloud-manager-server/cloud-manager-server -type=%i
+        Restart=always
+        RestartSec=10
+        SyslogIdentifier=cloud-manager-server
+        KillSignal=SIGINT
+        User=root
+        Group=root
+        [Install]
+        WantedBy=multi-user.target
+            """ > /etc/systemd/system/cloud-manager-server@.service
 
-systemctl daemon-reload
-systemctl enable cloud-manager-server@admin.service cloud-manager-server@client.service
-systemctl restart cloud-manager-server@admin.service cloud-manager-server@client.service
+        systemctl daemon-reload
+        systemctl enable cloud-manager-server@admin.service cloud-manager-server@client.service
+        systemctl restart cloud-manager-server@admin.service cloud-manager-server@client.service
+
+    ;;
+esac
