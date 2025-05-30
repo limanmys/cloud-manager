@@ -17,4 +17,8 @@ func Init() {
 		log.Fatalln("error when making migrations, ", err.Error())
 	}
 
+	if err := database.Connection().AutoMigrate(&entities.Image{}); err != nil {
+		log.Fatalln("error when making migrations, ", err.Error())
+	}
+
 }

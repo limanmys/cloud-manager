@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/limanmys/cloud-manager-server/app/controllers/clients"
 	"github.com/limanmys/cloud-manager-server/app/controllers/clouds"
+	"github.com/limanmys/cloud-manager-server/app/controllers/images"
 	"github.com/limanmys/cloud-manager-server/app/controllers/machines"
 )
 
@@ -25,6 +26,12 @@ func Client(app *fiber.App) {
 	cloudGroup := app.Group("/clouds")
 	{
 		cloudGroup.Post("/", clouds.Store)
+
+	}
+
+	imagesGroup := app.Group("/images")
+	{
+		imagesGroup.Post("/", images.Store)
 
 	}
 
